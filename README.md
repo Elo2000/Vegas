@@ -1,4 +1,4 @@
 
-VEGAS- A store for personalized gifts 
+VEGAS- A store for personalized watches
 
 
