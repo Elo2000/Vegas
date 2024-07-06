@@ -1,0 +1,71 @@
+<style>
+    .sidebar {
+            margin: 0;
+            padding: 0;
+            width: 200px;
+            background-color: #f1f1f1;
+            position: fixed;
+            height: 100%;
+            overflow: auto;
+        }
+
+        .sidebar a {
+            display: block;
+            color: black;
+            padding: 16px;
+            text-decoration: none;
+        }
+
+
+
+        .sidebar a:hover:not(.active) {
+            background-color: #555;
+            color: white;
+        }
+
+        div.content {
+            margin-left: 200px;
+            padding: 0px 10px;
+            height: 1000px;
+        }
+
+        @media screen and (max-width: 700px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+
+            .sidebar a {
+                float: left;
+            }
+
+            div.content {
+                margin-left: 0;
+            }
+        }
+
+        @media screen and (max-width: 400px) {
+            .sidebar a {
+                text-align: center;
+                float: none;
+            }
+        }
+</style>
+
+
+
+
+<div class="sidebar">
+    <a href="C:\Users\Helen\Vegas\Vegas\src\adminpages\admin_home_page.html"><img src="C:\Users\Helen\Vegas\Vegas\src\images\logo.png" style="width: 75px; margin: 25px;" alt=""></a>
+    <p style="margin: 25px;">MAIN MENU</p>
+    <a href="C:\Users\Helen\Vegas\Vegas\src\adminpages\products_page.html"><i class='fa fa-cube' style='font-size:25px;'></i> <span
+            style="margin: 10px;">Products</span></a>
+    <a href="C:\Users\Helen\Vegas\Vegas\src\adminpages\users_page.html"><i class='fa fa-user' style='font-size:25px;'></i> <span
+            style="margin: 10px;">Users</span></a>
+    <a href="C:\Users\Helen\Vegas\Vegas\src\adminpages\orders_page.html" ><i class='fa fa-suitcase'
+            style='font-size:25px;'></i> <span style="margin: 10px;">Orders</span></a>
+    <a href="C:\Users\Helen\Vegas\Vegas\src\userpages\offers_page.html"><i class='fa fa-fire' style='font-size:25px;'></i> <span
+            style="margin: 10px;">User Offers</span></a>
+    <a href="#settings"><i class='fa fa-cog' style='font-size:25px;'></i> <span style="margin: 10px;">Settings</span></a>
+</div>
