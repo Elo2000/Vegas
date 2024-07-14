@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Vegas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://kit.fontawesome.com/5a6ad2a5b8.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="theme.css">
+</head>
+
+<body class="dark-mode">
+    <!-- Navbar -->
+    <div id="navbar-placeholder"></div>
+    <!-- End Navbar -->
+
+    <div style="margin-left: -125px;margin-right: -100px;margin-top: -20px; width: 100%;">
+        <div class="container">
+            <p class="text-start" style="margin-top: 20px;margin-left: 225px; font-size: larger;"><b>Time's Elegance: Elevate Your Every Moment</b></p>
+            <p class="text-start" style="margin-top: 20px;margin-left: 225px;font-size: small;">Crafting moments, one ticking second at a time</p>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-6" style="position: relative;margin-left: 75px;width: 65%;">
+                <div class="container">
+                    <img src="/Vegas/images/home_watch.png" class="img-fluid" alt="...">
+                </div>
+                <div class="row justify-content-around" style="margin: 30px;">
+                    <div class="col-8">
+                        <div class="container">
+                            <p><b>VEGAS offers Precision and Elegance in Every Tick</b></p>
+                            <p style="text-align: justify;text-justify: inter-word;font-size:small;">VEGAS Watches embodies the pinnacle of sophistication and precision in timekeeping. Our curated collection seamlessly marries classic elegance with modern innovation, delivering watches that are not just timekeepers but exquisite expressions of your style and personality.</p>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="row justify-content-center">
+                            <div class="col-6" style="margin-left: -50px;">
+                                <img src="/Vegas/images/home_rolex.png" style="margin-left: 50px;margin-top: 30px;width: 75px;" class="img-fluid" alt="...">
+                            </div>
+                            <div class="col-6" style="margin-top: 30px;margin-left: -50px;">
+                                <img src="/Vegas/images/home_hublot.png" style="margin-left: 50px;margin-top: 30px;width: 75px;" class="img-fluid" alt="...">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-3" style="margin-top: -80px;margin-left: 50px;margin-right: -150px;width: 25%;">
+                <div class="container">
+                    <img src="/Vegas/images/home_watch1.png" style="width: 400px;" class="img-fluid" alt="...">
+                </div>
+                <div class="container">
+                    <div class="col-4">
+                        <a href="https://www.facebook.com/vegaspalestine"><i class="fa fa-facebook-square" style="color: white; font-size: 24px;"></i></a>
+                        <a href="https://www.instagram.com/vegass.ps/"><i class="fa fa-instagram" style="color: white; font-size: 24px; margin-left: 10px;"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Initialize Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getFirestore, collection, doc, setDoc, getDoc, serverTimestamp, updateDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCufIc37_fm4nPZfu0PlumUWacongQk888",
+            authDomain: "vegas-86e0c.firebaseapp.com",
+            projectId: "vegas-86e0c",
+            storageBucket: "vegas-86e0c.appspot.com",
+            messagingSenderId: "765371429214",
+            appId: "1:765371429214:web:feb1d52ef7424ab6cfdfcf",
+            measurementId: "G-QVRK9XYX04"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+        provider.setCustomParameters({
+            'client_id': '765371429214-2ddphul7l3njn1skvfckp9lvv9lb4f92.apps.googleusercontent.com'
+        });
+
+        async function getUserProfileImageUrl() {
+            const email = localStorage.getItem('email');
+            if (!email) {
+                console.error("No email found in local storage.");
+                return null;
+            }
+
+            try {
+                const userRef = query(collection(db, "users"), where("email", "==", email));
+                const snapshot = await getDocs(userRef);
+                if (!snapshot.empty) {
+                    const userData = snapshot.docs[0].data();
+                    return userData.profileImageUrl;
+                } else {
+                    console.error("No user found with the email:", email);
+                    return null;
+                }
+            } catch (error) {
+                console.error("Error getting user profile image URL:", error);
+                return null;
+            }
+        }
+
+        async function loadNavbar() {
+            try {
+                const response = await fetch("/Vegas/navbar.html");
+                if (!response.ok) {
+                    throw new Error("Failed to fetch navbar");
+                }
+                const navbarHTML = await response.text();
+                document.querySelector("#navbar-placeholder").innerHTML = navbarHTML;
+                const profileImageUrl = await getUserProfileImageUrl();
+                if (profileImageUrl) {
+                    document.getElementById("dp_img").src = profileImageUrl;
+                }
+
+                // Attach logout function to logout button
+                const logoutBtn = document.getElementById("logout");
+                if (logoutBtn) {
+                    logoutBtn.addEventListener("click", window.logout);
+                }
+
+            } catch (error) {
+                console.error("Error loading navbar:", error);
+            }
+        }
+
+        window.logout = async function logout() {
+            const user = auth.currentUser;
+
+            if (user) {
+                // Fetch user document from Firestore
+                const userDocRef = doc(db, "users", user.uid);
+
+                // Update the user document to set is_login to false
+                await updateDoc(userDocRef, {
+                    is_login: false
+                });
+
+                // Sign out the user
+                await signOut(auth);
+
+                // Remove the token and email from localStorage
+                localStorage.removeItem('token');
+                localStorage.removeItem('email');
+
+                // Redirect to the login page
+                window.location.href = '/vegas/log_in_page.html';
+            } else {
+                console.error("No user is currently logged in.");
+                alert("No user is currently logged in.");
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const token = localStorage.getItem('token');
+
+            if (!token) {
+                alert("not signed in")
+                window.location.href = '/vegas/log_in_page.html';
+                return;
+            }
+
+            await loadNavbar();
+
+            const savedTheme = localStorage.getItem("theme") || "light-mode";
+            applyTheme(savedTheme);
+
+            const themeToggleBtn = document.getElementById("settings");
+            if (themeToggleBtn) {
+                themeToggleBtn.addEventListener("click", toggleTheme);
+            }
+        });
+
+        function applyTheme(theme) {
+            const body = document.body;
+            if (theme === "dark-mode") {
+                body.classList.add("dark-mode");
+                body.classList.remove("light-mode");
+            } else {
+                body.classList.add("light-mode");
+                body.classList.remove("dark-mode");
+            }
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            if (body.classList.contains("dark-mode")) {
+                applyTheme("light-mode");
+                localStorage.setItem("theme", "light-mode");
+            } else {
+                applyTheme("dark-mode");
+                localStorage.setItem("theme", "dark-mode");
+            }
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIiEHz" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

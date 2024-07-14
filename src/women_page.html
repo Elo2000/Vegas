@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vegas - Products</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://kit.fontawesome.com/5a6ad2a5b8.js" crossorigin="anonymous"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <link rel="stylesheet" href="theme.css">
+</head>
+
+<body class="dark-mode">
+
+    <!-- Theme Toggle Button -->
+
+    <!-- Navbar -->
+    <div id="navbar-placeholder"></div>
+    <!-- End Navbar -->
+
+    <!-- Main Content -->
+    <div class="container-fluid mt-4">
+        <!-- Search Bar -->
+        <div class="container">
+            <div class="container-fluid col-6 text-center mx-auto" style="margin-top: 50px;">
+                <form class="d-flex">
+                    <input id="search-input" class="form-control me-2" type="search" placeholder="Search"
+                        aria-label="Search" onkeyup="searchProducts()">
+                </form>
+            </div>
+        </div>
+        <!-- Product Display -->
+        <div class="container text-center">
+            <div class="row row-cols-1 row-cols-md-2 row-cols-md-3 row-cols-md-3 g-4 align-items-start"
+                style="margin-top: 50px;">
+                <!-- Products will be dynamically added here -->
+            </div>
+        </div>
+        <!-- End Product Display -->
+
+        <!-- Social Media Icons -->
+        <div class="container text-center" style="margin-top: 30px;">
+            <a href="https://www.facebook.com/vegaspalestine"><i class="fa fa-facebook-square" style="color: white; font-size: 24px;"></i></a>
+            <a href="https://www.instagram.com/vegass.ps/"><i class="fa fa-instagram" style="color: white; font-size: 24px; margin-left: 10px;"></i></a>
+        </div>
+
+        <!-- Firebase SDKs -->
+        <script>
+            // Firebase configuration and initialization
+            const firebaseConfig = {
+                apiKey: "AIzaSyCufIc37_fm4nPZfu0PlumUWacongQk888",
+                authDomain: "vegas-86e0c.firebaseapp.com",
+                projectId: "vegas-86e0c",
+                storageBucket: "vegas-86e0c.appspot.com",
+                messagingSenderId: "765371429214",
+                appId: "1:765371429214:web:feb1d52ef7424ab6cfdfcf",
+                measurementId: "G-QVRK9XYX04"
+            };
+
+            // Initialize Firebase
+            const app = firebase.initializeApp(firebaseConfig);
+            const db = firebase.firestore();
+            const auth = firebase.auth();
+            const provider = new firebase.auth.GoogleAuthProvider();
+            provider.setCustomParameters({
+                'client_id': '765371429214-2ddphul7l3njn1skvfckp9lvv9lb4f92.apps.googleusercontent.com'
+            });
+
+            document.addEventListener("DOMContentLoaded", function () {
+                const token = localStorage.getItem('token');
+
+                if (!token) {
+                    window.location.href = '/vegas/log_in_page.html';
+                    return;
+                }
+
+                // Fetch products from Firestore and display
+                fetchProducts();
+                 
+                loadNavbar();
+            });
+
+            async function getUserProfileImageUrl() {
+                const email = localStorage.getItem('email');
+                if (!email) {
+                    console.error("No email found in local storage.");
+                    return null;
+                }
+
+                try {
+                    const userRef = db.collection("users").where("email", "==", email);
+                    const snapshot = await userRef.get();
+                    if (!snapshot.empty) {
+                        const userData = snapshot.docs[0].data();
+                        return userData.profileImageUrl;
+                    } else {
+                        console.error("No user found with the email:", email);
+                        return null;
+                    }
+                } catch (error) {
+                    console.error("Error getting user profile image URL:", error);
+                    return null;
+                }
+            }
+
+            async function fetchProducts() {
+                try {
+                    const productsRef = db.collection("products").where("type", "==", "men");
+                    const snapshot = await productsRef.get();
+                    const products = snapshot.docs.map(doc => doc.data());
+                    displayProducts(products);
+                } catch (error) {
+                    console.error("Error fetching products:", error);
+                }
+            }
+
+            function displayProducts(products) {
+                const productDisplay = document.querySelector(".container.text-center .row.align-items-start");
+                productDisplay.innerHTML = ""; // Clear previous content
+
+                products.forEach(product => {
+                    const html = `
+                    <div class="col">
+                        <img src="${product.photoURL}" style="height: 150px; width: 450px;" class="img-fluid" alt="${product.name}">
+                        <p style="font-size: larger;">${product.name}</p>
+                        <p style="font-size: smaller;">${product.desc}<br>$${product.price}</p>
+                        <button class="btn btn-primary" onclick="addToCart('${product.name}', '${product.photoURL}', '${product.desc}', ${product.price})">Add to Cart</button>
+                    </div>
+                `;
+                    productDisplay.insertAdjacentHTML("beforeend", html);
+                });
+            }
+
+            function addToCart(name, photoURL, desc, price) {
+                const confirmed = confirm(`Do you want to add ${name} to the cart?`);
+                if (confirmed) {
+                    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+                    cart.push({ name, photoURL, desc, price });
+                    localStorage.setItem('cart', JSON.stringify(cart));
+                     
+                }
+            }
+
+            
+
+            
+
+            function checkout() {
+                const cart = JSON.parse(localStorage.getItem('cart')) || [];
+                if (cart.length === 0) {
+                    alert("Your cart is empty!");
+                    return;
+                }
+
+                // Collect order details
+                const orderData = {
+                    createdAt: new Date(),
+                    customerName: auth.currentUser ? (auth.currentUser.displayName || auth.currentUser.email || "Anonymous") : "Anonymous",
+                    deadline: new Date(), // Set your deadline date
+                    orderId: generateOrderId(),
+                    price: calculateTotalPrice(cart),
+                    products: cart,
+                    status: "Completed"
+                };
+
+                // Store order in Firestore
+                storeOrder(orderData);
+
+                // Clear cart after checkout
+                localStorage.removeItem('cart');
+                 
+            }
+
+
+
+            function calculateTotalPrice(cart) {
+                return cart.reduce((total, item) => total + item.price, 0);
+            }
+
+            function generateOrderId() {
+                // Generate a unique order ID (you can use a library like uuid)
+                return Math.random().toString(36).substr(2, 9); // Example, not secure for production
+            }
+
+            async function storeOrder(orderData) {
+                try {
+                    const docRef = await db.collection("orders").add(orderData);
+                    console.log("Order placed successfully with ID:", docRef.id);
+                    alert("Order placed successfully with Cash on delivery.");
+                } catch (error) {
+                    console.error("Error placing order:", error);
+                    alert("Error placing order: " + error.message);
+                }
+            }
+
+            // Search function
+            function searchProducts() {
+                const searchInput = document.querySelector("#search-input").value.toLowerCase();
+                const products = Array.from(document.querySelectorAll(".container.text-center .row.align-items-start .col"));
+
+                products.forEach(product => {
+                    const productName = product.querySelector('p:nth-of-type(1)').textContent.toLowerCase();
+                    if (productName.includes(searchInput)) {
+                        product.style.display = "block";
+                    } else {
+                        product.style.display = "none";
+                    }
+                });
+            }
+
+            async function loadNavbar() {
+            try {
+                const response = await fetch("/Vegas/navbar.html");
+                if (!response.ok) {
+                    throw new Error("Failed to fetch navbar");
+                }
+                const navbarHTML = await response.text();
+                document.querySelector("#navbar-placeholder").innerHTML = navbarHTML;
+                const profileImageUrl = await getUserProfileImageUrl();
+                if (profileImageUrl) {
+                    document.getElementById("dp_img").src = profileImageUrl;
+                }
+
+                // Attach logout function to logout button
+                const logoutBtn = document.getElementById("logout");
+                if (logoutBtn) {
+                    logoutBtn.addEventListener("click", window.logout);
+                }
+
+            } catch (error) {
+                console.error("Error loading navbar:", error);
+            }
+        }
+
+        window.logout = async function logout() {
+            const user = auth.currentUser;
+console.log(user)
+            if (user) {
+                try {
+                    // Fetch user document from Firestore
+                    const userDocRef = db.collection("users").doc(user.uid);
+
+                    // Update the user document to set is_login to false
+                    await userDocRef.update({
+                        is_login: false
+                    });
+
+                    // Sign out the user
+                    await auth.signOut();
+
+                    // Remove the token and email from localStorage
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('email');
+                    localStorage.removeItem('cart');
+
+                    // Redirect to the login page
+                    window.location.href = '/vegas/log_in_page.html';
+                } catch (error) {
+                    console.error("Error during logout:", error);
+                    alert("Error during logout: " + error.message);
+                }
+            } else {
+                console.error("No user is currently logged in.");
+                alert("No user is currently logged in.");
+            }
+        }
+
+            
+        function applyTheme(theme) {
+            const body = document.body;
+            const themeToggleBtn = document.getElementById("settings");
+            if (theme === "dark-mode") {
+                body.classList.add("dark-mode");
+                body.classList.remove("light-mode");
+            } else {
+                body.classList.add("light-mode");
+                body.classList.remove("dark-mode");
+            }
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            if (body.classList.contains("dark-mode")) {
+                applyTheme("light-mode");
+                localStorage.setItem("theme", "light-mode");
+            } else {
+                applyTheme("dark-mode");
+                localStorage.setItem("theme", "dark-mode");
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const savedTheme = localStorage.getItem("theme") || "light-mode";
+            applyTheme(savedTheme);
+
+            const themeToggleBtn = document.getElementById("settings");
+            if (themeToggleBtn) {
+                    themeToggleBtn.addEventListener("click", toggleTheme);
+                }
+        });
+    
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIiEHz"
+            crossorigin="anonymous"></script>
+
+        <!-- Cart Section -->
+        
+        
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+        <!-- Bootstrap JS -->
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

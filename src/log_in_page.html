@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Vegas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://kit.fontawesome.com/5a6ad2a5b8.js" crossorigin="anonymous"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha384-KyZXEAg3QhqLMpG8r+Knujsl7/6k+VZnAsI6zY2+z5P5e6tVE9bJ99Pi1fY1R8z3" crossorigin="anonymous"></script>
+
+
+
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, collection, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyCufIc37_fm4nPZfu0PlumUWacongQk888",
+          authDomain: "vegas-86e0c.firebaseapp.com",
+          projectId: "vegas-86e0c",
+          storageBucket: "vegas-86e0c.appspot.com",
+          messagingSenderId: "765371429214",
+          appId: "1:765371429214:web:feb1d52ef7424ab6cfdfcf",
+          measurementId: "G-QVRK9XYX04"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+        provider.setCustomParameters({
+          'client_id': '765371429214-2ddphul7l3njn1skvfckp9lvv9lb4f92.apps.googleusercontent.com'
+        });
+
+        async function signInWithGoogle() {
+  try {
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+
+    const userDocRef = doc(db, "users", user.uid);
+    const userDocSnap = await getDoc(userDocRef);
+
+    if (!userDocSnap.exists()) {
+      const profileImageUrl = user.photoURL;
+
+      await setDoc(userDocRef, {
+        email: user.email,
+        role: 'user',
+        fullName: user.displayName,
+        profileImageUrl: profileImageUrl,
+        creationTime: serverTimestamp(),
+        is_login: true  // Set is_login to true on account creation
+      });
+
+      const token = await user.getIdToken();
+      localStorage.setItem('token', token);
+      localStorage.setItem('email', user.email);
+      alert("User created successfully: " + user.email);
+
+      $('#questionnaireModal').modal('show');
+    } else {
+      const userRole = userDocSnap.data().role;
+
+      await updateDoc(userDocRef, {
+        is_login: true  // Set is_login to true on login
+      });
+
+      const token = await user.getIdToken();
+      localStorage.setItem('token', token);
+      localStorage.setItem('email', user.email);
+      alert("User login successful: " + userRole);
+      window.location.href = userRole === 'admin' ? "/vegas/admin/admin_home_page.html" : "/vegas/user_home_page.html";
+    }
+  } catch (error) {
+    console.error("Error during Google Sign-In:", error);
+    alert("Error during Google Sign-In: " + error.message);
+  }
+}
+
+
+async function loginWithEmail() {
+  const email = document.getElementById("inputEmail").value;
+  const password = document.getElementById("inputPassword").value;
+
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+
+    console.log("User login successful:", user);
+
+    // Fetch user document from Firestore
+    const userDocRef = doc(db, "users", user.uid);
+    const userDocSnap = await getDoc(userDocRef);
+
+    if (userDocSnap.exists()) {
+      const userRole = userDocSnap.data().role;
+
+      // Check if role is defined
+      if (userRole) {
+        alert("User login successful: " + userRole);
+
+        // Store the token in localStorage
+        const token = await user.getIdToken();
+        localStorage.setItem('token', token);
+        localStorage.setItem('email', user.email);
+
+        // Update the user document to set is_login to true
+        if(userRole === 'user')
+        {await updateDoc(userDocRef, {
+          is_login: true
+        });
+
+        }
+        window.location.href = userRole === 'admin' ? "/vegas/admin/admin_home_page.html" : "/vegas/user_home_page.html";
+      } else {
+        console.error("User role is not defined.");
+        alert("User role is not defined.");
+      }
+    } else {
+      console.error("User document does not exist.");
+      alert("User document does not exist.");
+    }
+  } catch (error) {
+    console.error("Error during login:", error);
+    alert("Error during login: " + error.message);
+  }
+}
+
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+          document.getElementById("googleSignInButton").addEventListener("click", function(event) {
+            event.preventDefault();
+            signInWithGoogle();
+          });
+
+          document.getElementById("loginForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            loginWithEmail();
+          });
+          document.getElementById("questionnaireForm").addEventListener("submit", async function(event) {
+            event.preventDefault();
+            const user = auth.currentUser;
+            const preferences = {
+              watchPreference: document.getElementById("question1").value,
+              genderPreference: document.getElementById("question2").value,
+              typePreference: document.getElementById("question3").value,
+            };
+
+            try {
+              await setDoc(doc(db, "users", user.uid), { preferences }, { merge: true });
+              $('#questionnaireModal').modal('hide');
+
+              const userDoc = await getDoc(doc(db, "users", user.uid));
+              const userRole = userDoc.data().role;
+              window.location.href = userRole === 'admin' ? "/vegas/admin/admin_home_page.html" : "/vegas/user_home_page.html";
+            } catch (error) {
+              console.error("Error saving preferences:", error);
+            }
+          });
+        });
+    </script>
+</head>
+
+<body style="background-color: black;">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg" style="background-color: #eae2e2;">
+        <div class="container-fluid">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="#">HOME</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="#">MEN</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="#">WOMEN</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="#">BRANDS</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="#">OFFERS</a>
+                    </li>
+                    <li id="settings" class="nav-item">
+                       <a  class="nav-link active" aria-current="page" >SETTINGS</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#">
+                            <img src="/Vegas/images/logo.png" style="height: 40px; margin-left: 300px;"
+                                class="img-fluid" alt="Logo">
+                        </a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item dropdown">
+                        <a href="#" id="profileDropdown" role="button" data-toggle="dropdown" aria-haspopup="true"
+                            aria-expanded="false">
+                            <img id="dp_img" src="/Vegas/images/profile.png"
+                                style="height: 20px; margin-left: 20px;" class="img-fluid" alt="Profile">
+                        </a>
+                       
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a href="#">
+                            <img src="/Vegas/images/cart.webp" style="height: 20px;" class="img-fluid" alt="Cart">
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <!-- End Navbar -->
+
+    <div class="container text-center my-5">
+        <div class="row justify-content-center align-items-center">
+            <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                <img src="/vegas/images/login_watch.png" class="img-fluid" alt="Login Watch">
+            </div>
+            <div class="col-lg-6 col-md-8 col-sm-12">
+                <p style="color: white; font-size: larger;">LOG IN WITH</p>
+                <button id="googleSignInButton" type="button" class="btn btn-primary btn-lg mb-4">
+                    <i class="fa fa-google" style="font-size: 25px;"></i> <span style="font-size: medium;">Sign in with Google</span>
+                </button>
+                <div class="d-flex justify-content-center align-items-center my-4">
+                    <hr class="flex-grow-1 me-2" style="border-top: 1px solid white;">
+                    <span style="color: white;">OR</span>
+                    <hr class="flex-grow-1 ms-2" style="border-top: 1px solid white;">
+                </div>
+                <form id="loginForm">
+                    <div class="mb-3">
+                        <label for="inputEmail" class="form-label" style="color: white;">E-MAIL ADDRESS</label>
+                        <input type="email" class="form-control" id="inputEmail" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="inputPassword" class="form-label" style="color: white;">PASSWORD</label>
+                        <input type="password" class="form-control" id="inputPassword" required>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <button type="submit" class="btn btn-danger btn-sm">Log in</button>
+                       <a href="/vegas/sign_up_page.html"> <button type="button" class="btn btn-danger btn-sm">Signup</button></a>
+                        <button type="button" class="btn btn-danger btn-sm">Forgot Password</button>
+                    </div>
+                </form>
+                <div class="mt-4">
+                  <a href="https://www.facebook.com/vegaspalestine"><i class="fa fa-facebook-square" style="color: white; font-size: 24px;"></i></a>
+                  <a href="https://www.instagram.com/vegass.ps/"><i class="fa fa-instagram" style="color: white; font-size: 24px; margin-left: 10px;"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="questionnaireModal" tabindex="-1" aria-labelledby="questionnaireModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="questionnaireModalLabel">Questionnaire</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="questionnaireForm">
+                        <div class="mb-3">
+                            <label for="question1" class="form-label">Do you prefer watches</label>
+                            <select id="question1" class="form-select" required>
+                                <option value="leather">Leather</option>
+                                <option value="plastic">Plastic</option>
+                                <option value="aluminum">Aluminum</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="question2" class="form-label">Do you like to see</label>
+                            <select id="question2" class="form-select" required>
+                                <option value="men">Men</option>
+                                <option value="women">Women</option>
+                                <option value="both">Both</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="question3" class="form-label">Do you prefer</label>
+                            <select id="question3" class="form-select" required>
+                                <option value="automatic">Automatic Watches</option>
+                                <option value="digital">Digital Watches</option>
+                                <option value="pulse">Pulse Watch</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
