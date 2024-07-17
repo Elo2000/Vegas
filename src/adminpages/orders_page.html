@@ -1,347 +1,400 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vegas</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Vegas - Orders Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <script src="https://kit.fontawesome.com/5a6ad2a5b8.js" crossorigin="anonymous"></script>
+    
+    
     <style>
         body {
             margin: 0;
             font-family: "Lato", sans-serif;
         }
 
-        .sidebar {
-            margin: 0;
-            padding: 0;
-            width: 200px;
-            background-color: #f1f1f1;
-            position: fixed;
-            height: 100%;
-            overflow: auto;
-        }
-
-        .sidebar a {
-            display: block;
-            color: black;
-            padding: 16px;
-            text-decoration: none;
-        }
-
-        .sidebar a.active {
-            background-color: #04AA6D;
-            color: white;
-        }
-
-
         div.content {
-            margin-top: -100px;
-            margin-left: 100px;
-            padding: 125px;
+            margin-left: 200px;
+            padding: 30px 20px;
             height: 1000px;
-            width: 100%;
+            width: calc(100% - 200px);
             position: fixed;
+            overflow-x: auto;
         }
 
         @media screen and (max-width: 700px) {
-            .sidebar {
-                width: 100%;
-                height: auto;
-                position: relative;
-            }
-
-            .sidebar a {
-                float: left;
-            }
-
             div.content {
                 margin-left: 0;
-            }
-        }
-
-        @media screen and (max-width: 400px) {
-            .sidebar a {
-                text-align: center;
-                float: none;
+                width: 100%;
+                padding-left: 20px;
             }
         }
     </style>
+    <script src="https://www.gstatic.com/firebasejs/9.11.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.11.0/firebase-firestore-compat.js"></script>
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCufIc37_fm4nPZfu0PlumUWacongQk888",
+            authDomain: "vegas-86e0c.firebaseapp.com",
+            projectId: "vegas-86e0c",
+            storageBucket: "vegas-86e0c.appspot.com",
+            messagingSenderId: "765371429214",
+            appId: "1:765371429214:web:feb1d52ef7424ab6cfdfcf",
+            measurementId: "G-QVRK9XYX04"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Function to fetch orders based on status
+      
+
+        // Helper function to determine status badge color
+
+        const userEmail = localStorage.getItem('email');
+            if (userEmail) {
+                db.collection("users").where("email", "==", userEmail).get().then((querySnapshot) => {
+                    querySnapshot.forEach((doc) => {
+                        const userData = doc.data();
+                        document.getElementById("profilePicture").src = userData.profileImageUrl;
+                    });
+                }).catch((error) => {
+                    console.error("Error fetching user data: ", error);
+                });
+            }
+        document.addEventListener('DOMContentLoaded', () => {
+    fetchOrders('all'); // Fetch all orders initially
+    countAllOrders(); // Count all orders on page load
+    countInProgressOrders(); // Count in progress orders on page load
+    countReadyOrders(); // Count ready orders on page load
+
+    // Event listeners for status filter buttons
+    document.querySelector("#all-orders-link").addEventListener("click", () => fetchOrders('all'));
+    document.querySelector("#in-progress-link").addEventListener("click", () => fetchOrders('in progress'));
+    document.querySelector("#ready-link").addEventListener("click", () => fetchOrders('ready'));
+
+    // Event listener for search input
+    document.querySelector("#search-input").addEventListener("input", (event) => {
+        filterOrders(event.target.value.toLowerCase());
+    });
+});
+
+function getStatusBadgeClass(status) {
+            switch (status.toLowerCase()) {
+                case 'complete':
+                    return 'bg-success';
+                case 'pending':
+                    return 'bg-warning';
+                default:
+                    return 'bg-secondary';
+            }
+        }
+
+// Function to update the order status in Firestore
+function changeOrderStatus(orderId, newStatus) {
+    const orderRef = db.collection("orders").doc(orderId);
+    orderRef.update({
+        status: newStatus
+    }).then(() => {
+        console.log("Order status updated successfully");
+        countAllOrders(); // Count all orders on page load
+    countInProgressOrders(); // Count in progress orders on page load
+    countReadyOrders(); // Count ready orders on page load
+        fetchOrders('all'); // Refresh the orders list
+    }).catch((error) => {
+        console.error("Error updating order status: ", error);
+    });
+}
+
+// Function to delete an order from Firestore
+function deleteOrder(orderId) {
+    const orderRef = db.collection("orders").doc(orderId);
+    orderRef.delete().then(() => {
+        console.log("Order deleted successfully");
+        fetchOrders('all'); // Refresh the orders list
+    }).catch((error) => {
+        console.error("Error deleting order: ", error);
+    });
+}
+
+// Fetch orders function modified to add event listeners to Edit buttons
+function fetchOrders(status) {
+    const ordersTable = document.querySelector("#orders-table tbody");
+
+    // Clear existing table rows
+    ordersTable.innerHTML = "";
+
+    let query = db.collection("orders");
+    if (status !== 'all') {
+        query = query.where("status", "==", status);
+    }
+
+    query.get().then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+            const order = doc.data();
+            const statusBadgeClass = getStatusBadgeClass(order.status);
+            const createdDate = order.createdAt.toDate().toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+            const deadlineDate = order.deadline.toDate().toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+
+            const row = `
+                <tr>
+                    <td><input type="checkbox" name="orderCheckbox"></td>
+                    <td class="order-id">${order.orderId}</td>
+                    <td class="order-products">${order.products.map(product => product.name).join(', ')}</td>
+                    <td class="order-customer">${order.customerName}</td>
+                    <td><span class="badge rounded-pill ${statusBadgeClass}">${order.status}</span></td>
+                    <td class="order-created">${createdDate}</td>
+                    <td class="order-deadline">${deadlineDate}</td>
+                    <td class="order-price">$${order.price.toFixed(2)}</td>
+                    <td>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-outline-primary">Status</button>
+                            <button type="button" class="btn btn-outline-primary dropdown-toggle dropdown-toggle-split"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                <span class="visually-hidden">Toggle Dropdown</span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#" onclick="changeOrderStatus('${doc.id}', 'in progress')">In Progress</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="changeOrderStatus('${doc.id}', 'ready')">Ready</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="changeOrderStatus('${doc.id}', 'complete')">Complete</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="changeOrderStatus('${doc.id}', 'pending')">Pending</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="deleteOrder('${doc.id}')">Delete</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+            `;
+            ordersTable.insertAdjacentHTML('beforeend', row);
+        });
+    }).catch((error) => {
+        console.error("Error fetching orders: ", error);
+    });
+}
+
+// Helper function to determine status badge color
+function getStatusBadgeClass(status) {
+    switch (status.toLowerCase()) {
+        case 'complete':
+            return 'bg-success';
+        case 'pending':
+            return 'bg-warning';
+        case 'in progress':
+            return 'bg-primary';
+        case 'ready':
+            return 'bg-info';
+        default:
+            return 'bg-secondary';
+    }
+}
+
+// Function to filter table rows based on search query
+function filterOrders(query) {
+    const rows = document.querySelectorAll("#orders-table tbody tr");
+    rows.forEach(row => {
+        const orderId = row.querySelector('.order-id').textContent.toLowerCase();
+        const orderProducts = row.querySelector('.order-products').textContent.toLowerCase();
+        const orderCustomer = row.querySelector('.order-customer').textContent.toLowerCase();
+        const orderCreated = row.querySelector('.order-created').textContent.toLowerCase();
+        const orderDeadline = row.querySelector('.order-deadline').textContent.toLowerCase();
+        const orderPrice = row.querySelector('.order-price').textContent.toLowerCase();
+
+        if (orderId.includes(query) || orderProducts.includes(query) || orderCustomer.includes(query) ||
+            orderCreated.includes(query) || orderDeadline.includes(query) || orderPrice.includes(query)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+
+// Function to count all orders
+function countAllOrders() {
+    const allOrdersCount = document.querySelector("#all-orders-count");
+
+    db.collection("orders").get().then((querySnapshot) => {
+        const totalCount = querySnapshot.size;
+        allOrdersCount.textContent = totalCount;
+    }).catch((error) => {
+        console.error("Error counting all orders: ", error);
+    });
+}
+
+// Function to count in progress orders
+function countInProgressOrders() {
+    const inProgressCount = document.querySelector("#in-progress-count");
+
+    db.collection("orders").where("status", "==", "in progress").get().then((querySnapshot) => {
+        const totalCount = querySnapshot.size;
+        inProgressCount.textContent = totalCount;
+    }).catch((error) => {
+        console.error("Error counting in progress orders: ", error);
+    });
+}
+
+// Function to count ready orders
+function countReadyOrders() {
+    const readyCount = document.querySelector("#ready-count");
+
+    db.collection("orders").where("status", "==", "ready").get().then((querySnapshot) => {
+        const totalCount = querySnapshot.size;
+        readyCount.textContent = totalCount;
+    }).catch((error) => {
+        console.error("Error counting ready orders: ", error);
+    });
+}
+
+    </script>
 </head>
 
 <body>
-
+    
     <!-- Sidebar -->
-    <div class="sidebar">
-        <img src="C:\Users\Helen\Vegas\Vegas\src\images\logo.png" style="width: 75px;margin: 25px;" alt="">
-        <i class='fa fa-bars' style='font-size:25px;'></i>
-        
-        <p style="margin: 25px;">MAIN MENU</p>
-        <a href="C:\Users\Helen\Vegas\Vegas\src\adminpages\products_page.html"><i class='fa fa-cube' style='font-size:25px;'></i> <span
-          style="margin: 10px;">Products</span>
-  </a>
-  <a href="C:\Users\Helen\Vegas\Vegas\src\adminpages\users_page.html"><i class='fa fa-user' style='font-size:25px;'></i> <span style="margin: 10px;">Users</span></a>
-  <a href="C:\Users\Helen\Vegas\Vegas\src\adminpages\orders_page.html" style="background-color: white;"><i class='fa fa-suitcase' style='font-size:25px;background-color: white;'></i> <span style="margin: 10px;">Orders</span></a>
-  <a href="C:\Users\Helen\Vegas\Vegas\src\userpages\offers_page.html"><i class='fa fa-fire' style='font-size:25px;'></i> <span style="margin: 10px;">Hot
-          Offers</span>
-  </a>
-        <a href="#settings"><i class='fa fa-cog' style='font-size:25px;'></i> <span
-                style="margin: 10px;">Settings</span></a>
-    </div>
+    <div id="sidebar-placeholder"></div>
     <!-- End Sidebar -->
 
-    
-
+    <!-- Content -->
     <div class="content">
-
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg">
-        <div class="container-fluid">
-                <div class="col-6" style="margin-left: -10px; width: 33%;">
-                <form class="d-flex" role="search">
-                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+        
+        
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container-fluid">
+                <form class="d-flex ms-auto">
+                    <input class="form-control me-2" type="search" id="search-input" placeholder="Search" aria-label="Search">
                 </form>
-            </div>
-        </div>
-    </nav>
-    <!-- End Navbar -->    
-        <ul class="nav">
-            <li class="nav-item nav-underline">
-              <a class="nav-link active" style="color: blue;" aria-current="page" href="#"><span style="color: black;">All Orders </span> <span class="badge" style="background-color: orange;">20</span></a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="#"><span style="color: black;">In Progress </span><span class="badge text-bg-secondary">48</span></a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="#"><span style="color: black;">Ready </span><span class="badge text-bg-secondary">38</span></a>
-            </li>
-          </ul>
-        
-        <div class="container text-center">
-            <div class="row justify-content-between">
-                <div class="col-3">
-                    <p style="margin-top: 10px;margin-left: -100px; font-size: small;">Showing result 101-120 Result</p>
+                <div class="dropdown">
+
+                    <div  class=" dropdown-toggle dropdown-toggle-split"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                        <img id="profilePicture" src="/vegas/images/admin_prof_pic.png" style="height: 20px; width: 20px;" class="img-fluid"
+                        alt="Profile">
                 </div>
-            <div class="btn-group col-3" style="width: 5px;height: 35px; margin-right: 90px;margin-top: -10px;">
-                <button type="button" class="btn btn-outline-primary">10</button>
-                <button type="button" class="btn btn-outline-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
-                  <span class="visually-hidden">Toggle Dropdown</span>
-                </button>
-                <ul class="dropdown-menu">
-                  <li><a class="dropdown-item" href="#">Action</a></li>
-                  <li><a class="dropdown-item" href="#">Another action</a></li>
-                  <li><a class="dropdown-item" href="#">Something else here</a></li>
-                  <li><hr class="dropdown-divider"></li>
-                  <li><a class="dropdown-item" href="#">Separated link</a></li>
-                </ul>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" onclick="logout()">Logout</a></li>
+                    </ul>
+                </div>
+                
             </div>
+        </nav>
+        <!-- End Navbar -->
+        
+        
+        <p>Manage your orders here.</p>
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+               
+
+                <a href="#" id="all-orders-link" class="btn btn-outline-primary">
+                    All Orders <span id="all-orders-count" class="badge bg-secondary">0</span>
+                </a>
+                <a href="#" id="in-progress-link" class="btn btn-outline-warning">
+                    In Progress <span id="in-progress-count" class="badge bg-secondary">0</span>
+                </a>
+                <a href="#" id="ready-link" class="btn btn-outline-success">
+                    Ready <span id="ready-count" class="badge bg-secondary">0</span>
+                </a>
             </div>
         </div>
         
 
-          <table class="table" style="margin-top: -12px;">
+        <!-- Orders Table -->
+        <table id="orders-table" class="table table-striped">
             <thead>
-              <tr>
-                <th scope="col"><input type="checkbox" name="" id=""></th>
-                <th scope="col">ID Order <i class="fa fa-sort"></i></th>
-                <th scope="col">Product</th>
-                <th scope="col">Customer</th>
-                <th scope="col">Status <i class="fa fa-sort"></i></th>
-                <th scope="col">Created Date <i class="fa fa-sort"></i></th>
-                <th scope="col">Deadline <i class="fa fa-sort"></i></th>
-                <th scope="col">Price <i class="fa fa-sort"></i></th>
-                <th scope="col">Action</th>
-              </tr>
+                <tr>
+                    <th scope="col"><input type="checkbox" name="selectAll"></th>
+                    <th scope="col">Order ID</th>
+                    <th scope="col">Products</th>
+                    <th scope="col">Customer</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Created</th>
+                    <th scope="col">Deadline</th>
+                    <th scope="col">Price</th>
+                    <th scope="col">Actions</th>
+                </tr>
             </thead>
-            <tbody class="table-group-divider">
-              <tr>
-                <th scope="row"><input type="checkbox" name="" id=""></th>
-                <td>1234</td>
-                <td>WATCH</td>
-                <td>Nakoyame Japan</td>
-                <td><span class="badge rounded-pill text-bg-success">Complete</span></td>
-                <td>March 21, 2020 :00:28</td>
-                <td>March 23, 2020</td>
-                <td>$19.09</td>
-                <td>
-                    <div class="btn-group">
-                      <button type="button" class="btn btn-outline-primary">Action</button>
-                      <button type="button" class="btn btn-outline-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
-                        <span class="visually-hidden">Toggle Dropdown</span>
-                      </button>
-                      <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#">Action</a></li>
-                        <li><a class="dropdown-item" href="#">Another action</a></li>
-                        <li><a class="dropdown-item" href="#">Something else here</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="#">Separated link</a></li>
-                      </ul>
-                    </div>
-                </td>
-              </tr>
-              <tr>
-                <th scope="row"><input type="checkbox" name="" id=""></th>
-                <td>4456</td>
-                <td>WATCH</td>
-                <td>Jakarta Selatan</td>
-                <td><span class="badge rounded-pill text-bg-warning">Pending</span></td>
-                <td>April 10, 2020 :10:98</td>
-                <td>April 15, 2022</td>
-                <td>$15.10</td>
-                <td><div class="btn-group">
-                      <button type="button" class="btn btn-outline-primary">Action</button>
-                      <button type="button" class="btn btn-outline-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
-                        <span class="visually-hidden">Toggle Dropdown</span>
-                      </button>
-                      <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#">Action</a></li>
-                        <li><a class="dropdown-item" href="#">Another action</a></li>
-                        <li><a class="dropdown-item" href="#">Something else here</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="#">Separated link</a></li>
-                      </ul>
-                    </div></td>
-              </tr>
-              <tr>
-                <th scope="row"><input type="checkbox" name="" id=""></th>
-                <td>47575</td>
-                <td>WATCH</td>
-                <td>Lumajang</td>
-                <td><span class="badge rounded-pill text-bg-warning">Pending</span></td>
-                <td>March 21, 2020 :00:28</td>
-                <td>March 28, 2020</td>
-                <td>$30.09</td>
-                <td><div class="btn-group">
-                      <button type="button" class="btn btn-outline-primary">Action</button>
-                      <button type="button" class="btn btn-outline-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
-                        <span class="visually-hidden">Toggle Dropdown</span>
-                      </button>
-                      <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#">Action</a></li>
-                        <li><a class="dropdown-item" href="#">Another action</a></li>
-                        <li><a class="dropdown-item" href="#">Something else here</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="#">Separated link</a></li>
-                      </ul>
-                    </div></td>
-              </tr>
-              <tr>
-                <th scope="row"><input type="checkbox" name="" id=""></th>
-                <td>34545</td>
-                <td>WATCH</td>
-                <td>Surabaya</td>
-                <td><span class="badge rounded-pill text-bg-danger">Rejected</span></td>
-                <td>Feb 20, 2020 :08:10</td>
-                <td>Feb 27, 2020</td>
-                <td>$40.21</td>
-                <td><div class="btn-group">
-                      <button type="button" class="btn btn-outline-primary">Action</button>
-                      <button type="button" class="btn btn-outline-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
-                        <span class="visually-hidden">Toggle Dropdown</span>
-                      </button>
-                      <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#">Action</a></li>
-                        <li><a class="dropdown-item" href="#">Another action</a></li>
-                        <li><a class="dropdown-item" href="#">Something else here</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="#">Separated link</a></li>
-                      </ul>
-                    </div></td>
-              </tr>
-              <tr>
-                <th scope="row"><input type="checkbox" name="" id=""></th>
-                <td>53455</td>
-                <td>WATCH</td>
-                <td>Jembrana</td>
-                <td><span class="badge rounded-pill text-bg-success">Complete</span></td>
-                <td>May 15, 2020 :11:20</td>
-                <td>May 24, 2020</td>
-                <td>$12.42</td>
-                <td><div class="btn-group">
-                      <button type="button" class="btn btn-outline-primary">Action</button>
-                      <button type="button" class="btn btn-outline-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
-                        <span class="visually-hidden">Toggle Dropdown</span>
-                      </button>
-                      <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#">Action</a></li>
-                        <li><a class="dropdown-item" href="#">Another action</a></li>
-                        <li><a class="dropdown-item" href="#">Something else here</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="#">Separated link</a></li>
-                      </ul>
-                    </div></td>
-              </tr>
-              <tr>
-                <th scope="row"><input type="checkbox" name="" id=""></th>
-                <td>255545</td>
-                <td>WATCH</td>
-                <td>Denpasar</td>
-                <td><span class="badge rounded-pill text-bg-success">Complete</span></td>
-                <td>Mar 23, 2020 :20:20</td>
-                <td>Mar 30, 2020</td>
-                <td>$20.22</td>
-                <td><div class="btn-group">
-                      <button type="button" class="btn btn-outline-primary">Action</button>
-                      <button type="button" class="btn btn-outline-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
-                        <span class="visually-hidden">Toggle Dropdown</span>
-                      </button>
-                      <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#">Action</a></li>
-                        <li><a class="dropdown-item" href="#">Another action</a></li>
-                        <li><a class="dropdown-item" href="#">Something else here</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="#">Separated link</a></li>
-                      </ul>
-                    </div></td>
-              </tr>
-              <tr>
-                <th scope="row"><input type="checkbox" name="" id=""></th>
-                <td>22344</td>
-                <td>Oppo Reno 4</td>
-                <td>Manhattan</td>
-                <td><span class="badge rounded-pill text-bg-warning">Pending</span></td>
-                <td>Feb 17, 2020 :15:23</td>
-                <td>Feb 27, 2020</td>
-                <td>$23.43</td>
-                <td><div class="btn-group">
-                      <button type="button" class="btn btn-outline-primary">Action</button>
-                      <button type="button" class="btn btn-outline-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
-                        <span class="visually-hidden">Toggle Dropdown</span>
-                      </button>
-                      <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#">Action</a></li>
-                        <li><a class="dropdown-item" href="#">Another action</a></li>
-                        <li><a class="dropdown-item" href="#">Something else here</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="#">Separated link</a></li>
-                      </ul>
-                    </div></td>
-              </tr>
+            <tbody>
+                <!-- Orders will be appended here dynamically -->
             </tbody>
-          </table>
+        </table>
+        <!-- End Orders Table -->
 
-          <nav aria-label="Page navigation example">
-            <ul class="pagination justify-content-end" style="margin-right: 30px;margin-top: -10px;">
-                <li class="page-item">
-                    <a class="page-link" href="#" aria-label="Previous">
-                        <span aria-hidden="true">&laquo;</span>
-                    </a>
+        <!-- Pagination -->
+        <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-end">
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
                 </li>
                 <li class="page-item"><a class="page-link" href="#">1</a></li>
                 <li class="page-item"><a class="page-link" href="#">2</a></li>
                 <li class="page-item"><a class="page-link" href="#">3</a></li>
                 <li class="page-item">
-                    <a class="page-link" href="#" aria-label="Next">
-                        <span aria-hidden="true">&raquo;</span>
-                    </a>
+                    <a class="page-link" href="#">Next</a>
                 </li>
             </ul>
         </nav>
-        
+        <!-- End Pagination -->
 
     </div>
+    <!-- End Content -->
 
+    <script>
+        function logout() {
+            const userEmail = localStorage.getItem('email');
+            if (userEmail) {
+                const db = firebase.firestore();
+                db.collection("users").where("email", "==", userEmail).get().then((querySnapshot) => {
+                    querySnapshot.forEach((doc) => {
+                        db.collection("users").doc(doc.id).update({
+                            is_login: false
+                        }).then(() => {
+                            console.log("User status updated to offline.");
+                        }).catch((error) => {
+                            console.error("Error updating user status: ", error);
+                        });
+                    });
+                }).catch((error) => {
+                    console.error("Error fetching user data: ", error);
+                });
+            }
+
+            // Remove the token from localStorage
+            localStorage.removeItem('token');
+            localStorage.removeItem('email');
+            // Redirect to the login page
+            window.location.href = '/vegas/log_in_page.html';
+        }
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch("/Vegas/sidebar.html")
+                .then(response => response.text())
+                .then(data => {
+                    document.querySelector("#sidebar-placeholder").innerHTML = data;
+                });
+        });
+    </script>
+
+
+<!-- Cart Section -->
+
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

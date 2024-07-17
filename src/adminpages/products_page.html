@@ -1,243 +1,330 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vegas</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <script src="https://kit.fontawesome.com/5a6ad2a5b8.js" crossorigin="anonymous"></script>
     <style>
         body {
-            width: 100%;
             margin: 0;
             font-family: "Lato", sans-serif;
         }
 
-        .sidebar {
-            margin: 0;
-            padding: 0;
-            width: 200px;
-            background-color: #f1f1f1;
-            position: fixed;
-            height: 100%;
-            overflow: auto;
-        }
-
-        .sidebar a {
-            display: block;
-            color: black;
-            padding: 16px;
-            text-decoration: none;
-        }
-
-        .sidebar a.active {
-            background-color: #04AA6D;
-            color: white;
-        }
-
-        .sidebar a:hover:not(.active) {
-            background-color: #555;
-            color: white;
-        }
-
-        div.content {
+        .content {
             margin-left: 200px;
-            padding: 10px;
-            height: 1000px;
-            width: 100%;
-            position: fixed;
-        }
-
-        .border-dotted {
-            border-style: dotted;
-        }
-
-        .border-10 {
-            border-style: solid;
-            border-width: 10px;
+            padding: 20px;
         }
 
         @media screen and (max-width: 700px) {
-            .sidebar {
-                width: 100%;
-                height: auto;
-                position: relative;
-            }
-
-            .sidebar a {
-                float: left;
-            }
-
             div.content {
                 margin-left: 0;
+                width: 100%;
+                padding-left: 20px;
             }
         }
 
-        @media screen and (max-width: 400px) {
-            .sidebar a {
-                text-align: center;
-                float: none;
-            }
+        @media screen and (max-width: 400px) {}
+
+        .dropdown-toggle::after {
+            display: none;
         }
     </style>
 </head>
 
 <body>
-    <div class="sidebar" style="background-color: #eae2e2;">
-        <img src="C:\Users\Helen\Vegas\Vegas\src\images\logo.png" style="width: 75px;margin: 25px;" alt="">
-        <i class='fa fa-bars' style='font-size:25px;'></i>
-        <p style="margin: 25px;">MAIN MENU</p>
-        <a href="C:\Users\Helen\Vegas\Vegas\src\products_page.html" style="background-color: white;"><i class='fa fa-cube'
-                style='font-size:25px;color: #000;'></i> <span style="margin: 10px;color: #000;">Products</span>
-        </a>
-        <a href="C:\Users\Helen\Vegas\Vegas\src\adminpages\users_page.html"><i class='fa fa-user' style='font-size:25px;'></i> <span
-                style="margin: 10px;">Users</span></a>
-        <a href="C:\Users\Helen\Vegas\Vegas\src\adminpages\orders_page.html"><i class='fa fa-suitcase' style='font-size:25px;'></i> <span
-                style="margin: 10px;">Orders</span></a>
-        <a href="C:\Users\Helen\Vegas\Vegas\src\userpages\offers_page.html"><i class='fa fa-fire' style='font-size:25px;'></i> <span
-                style="margin: 10px;">Hot
-                Offers</span>
-        </a>
-        <a href="#settings"><i class='fa fa-cog' style='font-size:25px;'></i> <span
-                style="margin: 10px;">Settings</span></a>
-    </div>
+    <!-- Sidebar -->
+    <div id="sidebar-placeholder"></div>
     <!-- End Sidebar -->
 
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg"
-        style="background-color: #eae2e2;margin-left: 200px;position: fixed;width: 100%;">
-        <div class="container-fluid">
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item" style="margin-left: 100px;">
-                        <div class="navbar-nav me-auto mb-2 mb-lg-0">
-                            <form class="d-flex" role="search">
-                                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                            </form>
-                        </div>
-                    </li>
-                </ul>
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0" style="margin-left: 350px;">
-                    <li class="nav-item" style="margin-right: 15px;">
-                        <button type="button" class="btn btn-sm btn-primary"><i class="fa fa fa-plus fa-lg"></i>
-                            Create</button>
-                    </li>
-                    <li class="nav-item" style="margin-right: 15px;">
-                        <a href="#"><i class="fa fa-bell-o fa-lg"></i></a>
-                    </li>
-                    <li class="nav-item" style="margin-right: 15px;">
-                        <a href="#"><i class="fa fa-pencil fa-lg"></i></a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#"><img src="C:\Users\Helen\Vegas\Vegas\src\images\admin_prof_pic.png" style="height: 20px;width: 20px;"
-                                class="img-fluid" alt="..."></a>
-                    </li>
-                </ul>
-
-            </div>
-        </div>
-    </nav>
-    <!-- End Navbar -->
-
-    <div>
-        <div>
-        </div>
-        <h5 style="font-weight: bolder;margin-left: 300px;color: black;">Add New Product</h5>
-
-        <div style="height: 1000px;margin-left: 200px;margin-top: -50px;">
-            <div style="width: 75%;margin-left: 210px;margin-top: 90px;">
-                <div style="font-size: larger;margin-left: -185px;">
-                    Add New Product
-                </div>
-                <div style="background-color: black;color: white;margin-left: -185px;font-size: small;padding: 5px;">
-                    Product Details
-                </div>
-
-                <div style="margin-left: -185px;margin-top: 10px;">
-                    <label for="photo" class="form-label">Photo*</label>
-                    <div class="form-control p-2 mb-2 border-dotted" style="width: 125px;height: 125px;" id="photo">
-                        <span style="font-size: small;">Drag and drop or click here to select file</span></div>
-                </div>
-
-                <form class="g-3" style="margin-top: -163px;margin-left: -40px;">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <label for="name" class="form-label">Name*</label>
-                            <input type="text" class="form-control" id="name" placeholder="Samantha">
-                        </div>
-                        <div class="col-md-6">
-                            <label for="colors" class="form-label">Colors</label>
-                            <input type="text" class="form-control" id="colors" placeholder="Options">
-                        </div>
-                    </div>
-                    <div class="col-md-3" style="margin-top: 10px;">
-                        <label for="price" class="form-label">Price</label>
-                        <input type="number" class="form-control" id="price" placeholder="23$">
-                    </div>
-                    <div class="col-md-6" style="margin-top: 10px;">
-                        <label for="model" class="form-label">Model</label>
-                        <input type="text" class="form-control" id="model">
-                    </div>
-                    <div class="col-md-6" style="margin-top: 10px;">
-                        <label for="desc" class="form-label">Description</label>
-                        <textarea class="form-control"
-                            placeholder="Lorem ipsum dolor sit amet consectetur adipisicing elit. Sed corrupti, ullam error saepe at optio architecto fugit officia obcaecati? Tempora autem voluptatibus doloremque!"
-                            id="desc" style="height: 120px"></textarea>
-                    </div>
+    <div class="content">
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container-fluid">
+                <form class="d-flex ms-auto">
+                    <input id="searchInput" class="form-control me-2" type="search" placeholder="Search"
+                        aria-label="Search">
                 </form>
+                <a href="/vegas/admin/create_product.html" class="nav-item" style="margin-right: 15px;">
+                    <button type="button" class="btn btn-sm btn-primary"><i class="fa fa fa-plus fa-lg"></i>
+                        Create</button>
+                </a>
+                <div class="dropdown">
+                    <a href="#" class="dropdown-toggle" id="profileDropdown" data-bs-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="true">
+                        <img id="profileImage" src="" style="height: 20px; width: 20px;" class="img-fluid"
+                            alt="Profile">
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+                        <a class="dropdown-item" onclick="logout()">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        <!-- End Navbar -->
+
+        <!-- Content -->
+        <div class="container mt-3">
+            <div class="row">
+                <div class="col">
+                    <h3>PRODUCTS</h3>
+                </div>
+                <div class="col text-end">
+                    <button id="sortByName" class="btn btn-outline-secondary"><i class="fa fa-sort-amount-desc"></i>
+                        Sort</button>
+                </div>
             </div>
         </div>
+
+        <table class="table table-hover mt-3">
+            <thead>
+                <tr>
+                    <th scope="col">PHOTO</th>
+                    <th scope="col">PRODUCT NAME</th>
+                    <th scope="col">COLORS</th>
+                    <th scope="col">PRICE</th>
+                    <th scope="col">MODEL</th>
+                    <th scope="col">TYPE</th>
+                    <th scope="col">DESCRIPTION</th>
+                    <th scope="col">ACTIONS</th>
+                </tr>
+            </thead>
+            <tbody id="productTableBody">
+                <!-- Product rows will be inserted here -->
+            </tbody>
+        </table>
+
+        <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-end">
+                <li class="page-item">
+                    <a class="page-link" href="#" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                <li class="page-item"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item">
+                    <a class="page-link" href="#" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
     </div>
+    <!-- End Content -->
 
-    <div style="margin-top: -600px;">
-        <div>
-        </div>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
-        <div style="height: 1000px;margin-left: 200px;margin-top: -50px;">
-            <div style="width: 75%;margin-left: 210px;margin-top: 90px;">
-                <div style="font-size: larger;margin-left: -185px;">
-                    Update Product Details
-                </div>
-                <div style="background-color: black;color: white;margin-left: -185px;font-size: small;padding: 5px;">
-                    Product Details
-                </div>
+    <!-- Popper.js first, then Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+        integrity="sha384-oBqDVmMz4fnFO9gybBY5Z6KYDVO1aH49mxWYVoOA1F2jVf7yhHcyWQpHtP0P0RGI"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"
+        integrity="sha384-rbsA0pHZ9o2G/XbI9IsI5qhcjXpzPfCM9OMSo2tjIv0NEVQeXWZy91wkJJH0h/4E"
+        crossorigin="anonymous"></script>
 
-                <div style="margin-left: -185px;margin-top: 10px;">
-                    <label for="photo" class="form-label">Photo*</label>
-                    <div class="form-control p-2 mb-2 border-dotted" style="width: 125px;height: 125px;" id="photo">
-                        <span style="font-size: small;">Drag and drop or click here to select file</span></div>
-                </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch("/Vegas/sidebar.html")
+                .then(response => response.text())
+                .then(data => {
+                    document.querySelector("#sidebar-placeholder").innerHTML = data;
+                });
 
-                <form class="g-3" style="margin-top: -163px;margin-left: -40px;">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <label for="name" class="form-label">Name*</label>
-                            <input type="text" class="form-control" id="name" placeholder="Samantha">
-                        </div>
-                        <div class="col-md-6">
-                            <label for="colors" class="form-label">Colors</label>
-                            <input type="text" class="form-control" id="colors" placeholder="Options">
-                        </div>
-                    </div>
-                    <div class="col-md-3" style="margin-top: 10px;">
-                        <label for="price" class="form-label">Price</label>
-                        <input type="number" class="form-control" id="price" placeholder="23$">
-                    </div>
-                    <div class="col-md-6" style="margin-top: 10px;">
-                        <label for="model" class="form-label">Model</label>
-                        <input type="text" class="form-control" id="model">
-                    </div>
-                    <div class="col-md-6" style="margin-top: 10px;">
-                        <label for="desc" class="form-label">Description</label>
-                        <textarea class="form-control"
-                            placeholder="Lorem ipsum dolor sit amet consectetur adipisicing elit. Sed corrupti, ullam error saepe at optio architecto fugit officia obcaecati? Tempora autem voluptatibus doloremque!"
-                            id="desc" style="height: 120px"></textarea>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+            // Firebase configuration and initialization        
+            const firebaseConfig = {
+                apiKey: "AIzaSyCufIc37_fm4nPZfu0PlumUWacongQk888",
+                authDomain: "vegas-86e0c.firebaseapp.com",
+                projectId: "vegas-86e0c",
+                storageBucket: "vegas-86e0c.appspot.com",
+                messagingSenderId: "765371429214",
+                appId: "1:765371429214:web:feb1d52ef7424ab6cfdfcf",
+                measurementId: "G-QVRK9XYX04"
+            };
 
+            const app = firebase.initializeApp(firebaseConfig);
+            const db = firebase.firestore();
+
+            // Fetch the profile image URL based on the email stored in localStorage
+            const userEmail = localStorage.getItem('email');
+            if (userEmail) {
+                db.collection("users").where("email", "==", userEmail).get().then((querySnapshot) => {
+                    querySnapshot.forEach((doc) => {
+                        const userData = doc.data();
+                        document.getElementById("profileImage").src = userData.profileImageUrl;
+                    });
+                }).catch((error) => {
+                    console.error("Error fetching user data: ", error);
+                });
+            }
+
+            // Fetch products from Firestore and display in table
+            db.collection("products").get().then((querySnapshot) => {
+                const productTableBody = document.getElementById("productTableBody");
+                querySnapshot.forEach((doc) => {
+                    const product = doc.data();
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                    <td><img src="${product.photoURL}" alt="${product.name}" style="width: 50px; height: 50px;" /></td>
+                        <td>${product.name}</td>
+                        <td>${product.colors}</td>
+                        <td>${product.price}</td>
+                        <td>${product.model}</td>
+                        <td>${product.type}</td>
+                        <td>${product.desc}</td>
+                        <td>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-light dropdown-toggle" type="button" id="actionDropdown${doc.id}" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fa fa-ellipsis-v"></i>
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="actionDropdown${doc.id}">
+                                    <li><a class="dropdown-item" href="#" onclick="editProduct('${doc.id}')">Edit</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="deleteProduct('${doc.id}')">Delete</a></li>
+                                </ul>
+                            </div>
+                        </td>
+                    `;
+                    productTableBody.appendChild(row);
+                });
+            }).catch((error) => {
+                console.error("Error fetching products: ", error);
+            });
+
+            // Search functionality
+            const searchInput = document.getElementById("searchInput");
+            searchInput.addEventListener("input", function () {
+                const searchTerm = searchInput.value.trim().toLowerCase();
+                const rows = document.querySelectorAll("#productTableBody tr");
+
+                rows.forEach(row => {
+                    const name = row.querySelector("td:nth-child(2)").textContent.trim().toLowerCase();
+                    if (name.includes(searchTerm)) {
+                        row.style.display = "";
+                    } else {
+                        row.style.display = "none";
+                    }
+                });
+            });
+        });
+
+        // Edit product function
+        function editProduct(productId) {
+            localStorage.setItem('editProductId', productId);
+            window.location.href = "/vegas/admin/update_product.html";
+        }
+
+        // Delete product function
+        function deleteProduct(productId) {
+            if (confirm("Are you sure you want to delete this product?")) {
+                const db = firebase.firestore();
+                db.collection("products").doc(productId).delete().then(() => {
+                    console.log("Product successfully deleted!");
+                    // Refresh the table after deletion
+                    fetchProducts();
+                }).catch((error) => {
+                    console.error("Error removing product: ", error);
+                });
+            }
+        }
+
+        // Fetch products function to be used for refreshing the table
+        function fetchProducts() {
+            const db = firebase.firestore();
+            db.collection("products").get().then((querySnapshot) => {
+                const productTableBody = document.getElementById("productTableBody");
+                productTableBody.innerHTML = ""; // Clear existing table rows
+                querySnapshot.forEach((doc) => {
+                    const product = doc.data();
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                    <td><img src="${product.photoURL}" alt="${product.name}" style="width: 50px; height: 50px;" /></td>
+                        <td>${product.name}</td>
+                        <td>${product.colors}</td>
+                        <td>${product.price}</td>
+                        <td>${product.model}</td>
+                        <td>${product.type}</td>
+                        <td>${product.desc}</td>
+                        <td>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-light dropdown-toggle" type="button" id="actionDropdown${doc.id}" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fa fa-ellipsis-v"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="actionDropdown${doc.id}">
+                                    <li><a class="dropdown-item" href="#" onclick="editProduct('${doc.id}')">Edit</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="deleteProduct('${doc.id}')">Delete</a></li>
+                                </ul>
+                            </div>
+                        </td>
+                    `;
+                    productTableBody.appendChild(row);
+                });
+            }).catch((error) => {
+                console.error("Error fetching products: ", error);
+            });
+        }
+
+        function logout() {
+            const userEmail = localStorage.getItem('email');
+            if (userEmail) {
+                const db = firebase.firestore();
+                db.collection("users").where("email", "==", userEmail).get().then((querySnapshot) => {
+                    querySnapshot.forEach((doc) => {
+                        db.collection("users").doc(doc.id).update({
+                            is_login: false
+                        }).then(() => {
+                            console.log("User status updated to offline.");
+                        }).catch((error) => {
+                            console.error("Error updating user status: ", error);
+                        });
+                    });
+                }).catch((error) => {
+                    console.error("Error fetching user data: ", error);
+                });
+            }
+
+            // Remove the token from localStorage
+            localStorage.removeItem('token');
+            localStorage.removeItem('email');
+            // Redirect to the login page
+            window.location.href = '/vegas/log_in_page.html';
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            // Add event listener to sort button
+            const sortButton = document.getElementById("sortByName");
+            sortButton.addEventListener("click", function () {
+                sortTable(1); // 1 represents the index of the column to sort by (Product Name)
+            });
+        });
+
+        function sortTable(columnIndex) {
+            const rows = Array.from(document.querySelectorAll("#productTableBody tr"));
+
+            // Sort rows based on content of specified column
+            rows.sort((rowA, rowB) => {
+                const cellA = rowA.querySelectorAll("td")[columnIndex].textContent.trim().toLowerCase();
+                const cellB = rowB.querySelectorAll("td")[columnIndex].textContent.trim().toLowerCase();
+                return cellA.localeCompare(cellB);
+            });
+
+            // Remove existing rows from table
+            const productTableBody = document.getElementById("productTableBody");
+            productTableBody.innerHTML = "";
+
+            // Append sorted rows back to table
+            rows.forEach(row => productTableBody.appendChild(row));
+        }
+    </script>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>
