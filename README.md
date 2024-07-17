@@ -13,7 +13,7 @@ The MERN Stack was used for this project.
 ReactJS - front-end
 
 <p>
-  <img src="figma.png" alt="Figma" title="Figma" width="120" height="120">
+  <img src="src/images/figma.png" alt="Figma" title="Figma" width="120" height="120">
 </p>
 
 <p>Vegas was designed using Figma for UI/UX design, and developed using javascript. Firebase from Google was used for backend services. </p>
