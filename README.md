@@ -15,11 +15,11 @@ The MERN Stack was used for this project.
   <img src="src/images/firebase.png" alt="Firebase" title="Firebase" width="120" height="120">
   <img src="src/images/vs.png" alt="Visual Studio Code" title="Visual Studio Code" width="120" height="120">
   <img src="src/images/js.png" alt="Java Script" title="Java Script" width="120" height="120">
-  <img src="src/images/html.jpg" alt="HTML" title="HTML" width="120" height="120">
-  <img src="src/images/css.jpg" alt="CSS" title="CSS" width="120" height="120">
+  <img src="src/images/html5.svg" alt="HTML" title="HTML" width="120" height="120">
+  <img src="src/images/css3.svg" alt="CSS" title="CSS" width="120" height="120">
 </p>
 
-<p>Vegas was designed using Figma for UI/UX design, and developed using javascript. Firebase from Google was used for backend services. </p>
+<p>Vegas was designed using Figma for UI/UX design, and developed using javascript,HTML and CSS. Firebase from Google was used for backend services. </p>
 
 <h2>How to run the Project</h2>
 
@@ -32,7 +32,7 @@ The MERN Stack was used for this project.
 
 
 <h2>Used By</h2>
-<p>This project was developed as a graduation project for the bachelor's degree in software engineering at Azrieli, Jerusalem College of Engineering.</p>
+<p>This project was created as part of the requirements for completing a bachelor's degree in software engineering at Azrieli College of Engineering in Jerusalem.</p>
 
 <h2>Author</h2>
 <p>Author: <a href="https://github.com/Elo2000">https://github.com/Elo2000</a></p>
