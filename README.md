@@ -10,10 +10,13 @@ Welcome to **Vegas**, a unique watch store dedicated to offering personalized ti
 # Tech Stack
 The MERN Stack was used for this project.
 
-ReactJS - front-end
-
 <p>
   <img src="src/images/figma.png" alt="Figma" title="Figma" width="120" height="120">
+  <img src="src/images/firebase.png" alt="Firebase" title="Firebase" width="120" height="120">
+  <img src="src/images/vs.png" alt="Visual Studio Code" title="Visual Studio Code" width="120" height="120">
+  <img src="src/images/js.png" alt="Java Script" title="Java Script" width="120" height="120">
+  <img src="src/images/html.png" alt="HTML" title="HTML" width="120" height="120">
+  <img src="src/images/css.png" alt="CSS" title="CSS" width="120" height="120">
 </p>
 
 <p>Vegas was designed using Figma for UI/UX design, and developed using javascript. Firebase from Google was used for backend services. </p>
