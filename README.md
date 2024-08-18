@@ -21,9 +21,6 @@ The MERN Stack was used for this project.
 
 <p>Vegas was designed using Figma for UI/UX design, and developed using javascript,HTML and CSS. Firebase from Google was used for backend services. </p>
 
-<h2>How to run the Project</h2>
-
-
 <h2>Features & Functions of Vegas</h2>
 <ul>
   <li>Login and Sign Up: Users can create an account or log in to access the app.</li>
@@ -36,10 +33,19 @@ The MERN Stack was used for this project.
   <li>Pay on Delivery:Customers can choose the pay-on-delivery option for their orders.</li>
 </ul>
 
-<h2>Customer Interface</h2>
+<h2>User Interface Demo</h2>
+<img src="src/images/user1.png" alt="1" title="Hompage" width="170" height="400">
+<img src="src/images/user2.png" alt="1" title="men_womenwatches" width="170" height="400">
+<img src="src/images/user3.png" alt="1" title="brands" width="170" height="400">
+<img src="src/images/user4.png" alt="1" title="offers" width="170" height="400">
+<img src="src/images/user5.png" alt="1" title="cart" width="170" height="400">
 
-<h2>Shop Manager Interface</h2>
-
+<h2>Admin Interface Demo</h2>
+<img src="src/images/admin1.png" alt="1" title="Hompage" width="170" height="400">
+<img src="src/images/admin2.png" alt="1" title="products" width="170" height="400">
+<img src="src/images/admin3.png" alt="1" title="users" width="170" height="400">
+<img src="src/images/admin4.png" alt="1" title="orders" width="170" height="400">
+<img src="src/images/admin5.png" alt="1" title="offers" width="170" height="400">
 
 <h2>Author</h2>
 <p>Author: <a href="https://github.com/Elo2000">https://github.com/Elo2000</a></p>
