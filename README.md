@@ -24,16 +24,26 @@ The MERN Stack was used for this project.
 <h2>How to run the Project</h2>
 
 
-<h2>Features of Vegas</h2>
+<h2>Features & Functions of Vegas</h2>
+<ul>
+  <li>Login and Sign Up: Users can create an account or log in to access the app.</li>
+  <li>Personalized Experience: Users can personalize the search of the website to suits their personal style.</li>
+  <li>Convenience: The 24/7 availability means users can shop at any time that suits them, without time restrictions.</li>
+  <li>Efficient Shopping: Functions like search and filter, make the shopping experience quick and efficient.</li>
+  <li>User-Friendly Interface: The easy-to-navigate design ensures a smooth shopping experience.</li>
+  <li>Admin Dashboard: Shop managers have an admin dashboard to manage categories, products, and orders.</li>
+  <li>Security: The website's secure payment gateway ensures that users' financial information is protected.</li>
+  <li>Pay on Delivery:Customers can choose the pay-on-delivery option for their orders.</li>
+</ul>
 
 <h2>Customer Interface</h2>
 
 <h2>Shop Manager Interface</h2>
 
 
-<h2>Used By</h2>
-<p>This project was created as part of the requirements for completing a bachelor's degree in software engineering at Azrieli College of Engineering in Jerusalem.</p>
-
 <h2>Author</h2>
 <p>Author: <a href="https://github.com/Elo2000">https://github.com/Elo2000</a></p>
+
+
+
 
