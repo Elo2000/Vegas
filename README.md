@@ -34,18 +34,22 @@ The MERN Stack was used for this project.
 </ul>
 
 <h2>User Interface Demo</h2>
-<img src="src/images/user1.png" alt="1" title="Hompage" width="170" height="400">
-<img src="src/images/user2.png" alt="1" title="men_womenwatches" width="170" height="400">
-<img src="src/images/user3.png" alt="1" title="brands" width="170" height="400">
-<img src="src/images/user4.png" alt="1" title="offers" width="170" height="400">
-<img src="src/images/user5.png" alt="1" title="cart" width="170" height="400">
+<p>
+<img src="src/images/user1.png" alt="1" title="Hompage" width="400" height="400">
+<img src="src/images/user2.png" alt="1" title="men_womenwatches" width="400" height="400">
+<img src="src/images/user3.png" alt="1" title="brands" width="400" height="400">
+<img src="src/images/user4.png" alt="1" title="offers" width="400" height="400">
+<img src="src/images/user5.png" alt="1" title="cart" width="400" height="400">
+</p>
 
 <h2>Admin Interface Demo</h2>
-<img src="src/images/admin1.png" alt="1" title="Hompage" width="170" height="400">
-<img src="src/images/admin2.png" alt="1" title="products" width="170" height="400">
-<img src="src/images/admin3.png" alt="1" title="users" width="170" height="400">
-<img src="src/images/admin4.png" alt="1" title="orders" width="170" height="400">
-<img src="src/images/admin5.png" alt="1" title="offers" width="170" height="400">
+<p>
+<img src="src/images/admin1.png" alt="1" title="Hompage" width="400" height="400">
+<img src="src/images/admin2.png" alt="1" title="products" width="400" height="400">
+<img src="src/images/admin3.png" alt="1" title="users" width="400" height="400">
+<img src="src/images/admin4.png" alt="1" title="orders" width="400" height="400">
+<img src="src/images/admin5.png" alt="1" title="offers" width="400" height="400">
+</p>
 
 <h2>Author</h2>
 <p>Author: <a href="https://github.com/Elo2000">https://github.com/Elo2000</a></p>
