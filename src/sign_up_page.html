@@ -9,9 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
     <script src="https://kit.fontawesome.com/5a6ad2a5b8.js" crossorigin="anonymous"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha384-KyZXEAg3QhqLMpG8r+Knujsl7/6k+VZnAsI6zY2+z5P5e6tVE9bJ99Pi1fY1R8z3" crossorigin="anonymous"></script>
     <script type="module">
@@ -56,15 +54,25 @@ async function signUpWithEmail() {
     const profileImageRef = ref(storage, 'profileImages/' + user.uid + '/' + profileImage.name);
     await uploadBytes(profileImageRef, profileImage);
     const profileImageUrl = await getDownloadURL(profileImageRef);
-
+if(role === 'admin') {
     await setDoc(doc(db, "users", user.uid), {
       email: email,
       role: role,
       fullName: fullName,
       profileImageUrl: profileImageUrl,
-      creationTime: serverTimestamp()
+      creationTime: serverTimestamp(),
+      is_login: false
     });
-
+} else{
+    await setDoc(doc(db, "users", user.uid), {
+      email: email,
+      role: role,
+      fullName: fullName,
+      profileImageUrl: profileImageUrl,
+      creationTime: serverTimestamp(),
+      is_login: true
+    });
+}
     const token = btoa(JSON.stringify({ email, role: 'user' }));
 
     // Store the token in localStorage
@@ -87,42 +95,50 @@ async function signUpWithEmail() {
   }
 }
 
-async function signUpWithEmail() {
-  const email = document.getElementById("inputEmail").value;
-  const password = document.getElementById("inputPassword").value;
-  const fullName = document.getElementById("inputFullName").value;
-  const profileImageUrl = document.getElementById("inputProfileImage").value;
-
+async function signInWithGoogle() {
   try {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
 
-    console.log("User sign-up successful:", user);
-
-    // Create user document in Firestore
     const userDocRef = doc(db, "users", user.uid);
-    await setDoc(userDocRef, {
-      email: user.email,
-      role: 'user',
-      fullName: fullName,
-      profileImageUrl: profileImageUrl,
-      creationTime: serverTimestamp(),
-      is_login: true  // Set is_login to true on sign-up
-    });
+    const userDocSnap = await getDoc(userDocRef);
 
-    // Store the token in localStorage
-    const token = await user.getIdToken();
-    localStorage.setItem('token', token);
-    localStorage.setItem('email', user.email);
+    if (!userDocSnap.exists()) {
+      const profileImageUrl = user.photoURL;
 
-    alert("User sign-up successful: " + user.email);
-    window.location.href = "/vegas/user_home_page.html";
+      await setDoc(userDocRef, {
+        email: user.email,
+        role: 'user',
+        fullName: user.displayName,
+        profileImageUrl: profileImageUrl,
+        creationTime: serverTimestamp(),
+        is_login: true  // Set is_login to true on account creation
+      });
+
+      const token = await user.getIdToken();
+      localStorage.setItem('token', token);
+      localStorage.setItem('email', user.email);
+      alert("User created successfully: " + user.email);
+
+      $('#questionnaireModal').modal('show');
+    } else {
+      const userRole = userDocSnap.data().role;
+
+      await updateDoc(userDocRef, {
+        is_login: true  // Set is_login to true on login
+      });
+
+      const token = await user.getIdToken();
+      localStorage.setItem('token', token);
+      localStorage.setItem('email', user.email);
+      alert("User login successful: " + userRole);
+      window.location.href = userRole === 'admin' ? "/vegas/admin/admin_home_page.html" : "/vegas/user_home_page.html";
+    }
   } catch (error) {
-    console.error("Error during sign-up:", error);
-    alert("Error during sign-up: " + error.message);
+    console.error("Error during Google Sign-In:", error);
+    alert("Error during Google Sign-In: " + error.message);
   }
 }
-
 
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -225,7 +241,7 @@ async function signUpWithEmail() {
     <div class="container text-center my-5">
         <div class="row justify-content-center align-items-center">
             <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                <img src="/vegas/images/loginp.avif" class="img-fluid" alt="Login Watch">
+                <img src="/vegas/images/login_watch.png" class="img-fluid" alt="Login Watch">
             </div>
             <div class="col-lg-6 col-md-8 col-sm-12">
                 <p style="color: white; font-size: larger;">LOG IN WITH</p>
@@ -265,8 +281,8 @@ async function signUpWithEmail() {
                     </div>
                 </form>
                 <div class="mt-4">
-                    <a href="https://www.facebook.com/vegaspalestine"><i class="fa fa-facebook-square" style="color: white; font-size: 24px;"></i></a>
-                    <a href="https://www.instagram.com/vegass.ps/"><i class="fa fa-instagram" style="color: white; font-size: 24px; margin-left: 10px;"></i></a>
+                    <a href="#" class="me-2"><i class="fa fa-facebook-square" style="color: white; font-size: 24px;"></i></a>
+                    <a href="#"><i class="fa fa-instagram" style="color: white; font-size: 24px;"></i></a>
                 </div>
             </div>
         </div>
